@@ -1,0 +1,36 @@
+﻿nameOverride: ""
+fullnameOverride: ""
+
+wordpress:
+  image: wordpress:6.8.2-apache
+  replicas: 1
+  servicePort: 80
+  storage: 2Gi
+  storageClass: standard
+  host: shop.urumi.local
+  ingress:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+mariadb:
+  image: mariadb:11.4
+  storage: 2Gi
+  storageClass: standard
+  database: wordpress
+  user: wpuser
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+secrets:
+  name: woo-platform-secrets

@@ -1,0 +1,54 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: utility-mcp
+  namespace: urumi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: utility-mcp
+  template:
+    metadata:
+      labels:
+        app: utility-mcp
+    spec:
+      containers:
+        - name: utility
+          image: urumi-utility:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8002
+          env:
+            - name: PORT
+              value: "8002"
+          readinessProbe:
+            tcpSocket:
+              port: 8002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8002
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: utility-mcp
+  namespace: urumi
+spec:
+  selector:
+    app: utility-mcp
+  ports:
+    - port: 8002
+      targetPort: 8002

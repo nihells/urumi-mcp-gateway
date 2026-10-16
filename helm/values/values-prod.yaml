@@ -1,0 +1,36 @@
+# Production configuration template
+# Replace the example hostname and storage class before deployment.
+
+wordpress:
+  image: wordpress:6.8.2-apache
+  replicas: 1
+  servicePort: 80
+  storage: 10Gi
+  storageClass: standard
+  host: shop.example.com
+  ingress:
+    enabled: true
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+mariadb:
+  image: mariadb:11.4
+  storage: 10Gi
+  storageClass: standard
+  database: wordpress
+  user: wpuser
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+secrets:
+  name: woo-platform-secrets

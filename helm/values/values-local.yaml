@@ -1,0 +1,8 @@
+﻿wordpress:
+  host: shop.urumi.local
+  ingress:
+    enabled: true
+
+mariadb:
+  storage: 2Gi
+  storageClass: standard

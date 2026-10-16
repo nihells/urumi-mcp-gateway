@@ -1,0 +1,80 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: woo-mcp-server
+  namespace: urumi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: woo-mcp-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: woo-mcp-server
+    spec:
+      containers:
+        - name: woo-mcp-server
+          image: urumi-woo-mcp:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: WOOCOMMERCE_URL
+              value: "http://urumi-wordpress.urumi.svc.cluster.local"
+            - name: WOOCOMMERCE_CONSUMER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: woo-api-credentials
+                  key: consumer-key
+            - name: WOOCOMMERCE_CONSUMER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: woo-api-credentials
+                  key: consumer-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: woo-mcp-server
+  namespace: urumi
+spec:
+  type: ClusterIP
+  selector:
+    app: woo-mcp-server
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

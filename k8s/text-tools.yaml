@@ -1,0 +1,54 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: text-tools-mcp
+  namespace: urumi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: text-tools-mcp
+  template:
+    metadata:
+      labels:
+        app: text-tools-mcp
+    spec:
+      containers:
+        - name: text-tools
+          image: urumi-text-tools:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8003
+          env:
+            - name: PORT
+              value: "8003"
+          readinessProbe:
+            tcpSocket:
+              port: 8003
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8003
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: text-tools-mcp
+  namespace: urumi
+spec:
+  selector:
+    app: text-tools-mcp
+  ports:
+    - port: 8003
+      targetPort: 8003
