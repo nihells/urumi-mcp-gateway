@@ -85,3 +85,8 @@ Thumbs.db
 # ==========================================
 *.pyc
 *.pyo
+
+# Local authentication and temporary test credentials
+admin-login.json
+member-login.json
+temporary-api-key.json

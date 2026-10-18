@@ -1,0 +1,39 @@
+{{- if .Values.utilityMcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.utilityMcp.serviceName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.utilityMcp.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.utilityMcp.serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.utilityMcp.serviceName }}
+    spec:
+      containers:
+        - name: utility
+          image: {{ .Values.utilityMcp.image }}
+          imagePullPolicy: {{ .Values.utilityMcp.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.utilityMcp.servicePort }}
+          env:
+            - name: PORT
+              value: {{ .Values.utilityMcp.servicePort | quote }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.utilityMcp.resources | nindent 12 }}
+{{- end }}

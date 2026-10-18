@@ -34,3 +34,29 @@ mariadb:
 
 secrets:
   name: woo-platform-secrets
+
+frontend:
+  enabled: true
+  image: urumi-frontend:0.1.0
+  imagePullPolicy: IfNotPresent
+  replicas: 2
+  servicePort: 80
+  host: dashboard.example.com
+
+backend:
+  enabled: true
+  image: urumi-backend:0.1.0
+  serviceName: urumi-backend
+  servicePort: 8001
+
+ingress:
+  enabled: true
+  className: nginx
+
+gatewayResources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

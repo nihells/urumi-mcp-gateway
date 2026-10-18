@@ -1,0 +1,15 @@
+{{- if .Values.textTools.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.textTools.serviceName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.textTools.serviceName }}
+  ports:
+    - name: http
+      port: {{ .Values.textTools.servicePort }}
+      targetPort: http
+{{- end }}

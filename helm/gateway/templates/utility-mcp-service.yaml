@@ -1,0 +1,15 @@
+{{- if .Values.utilityMcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.utilityMcp.serviceName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.utilityMcp.serviceName }}
+  ports:
+    - name: http
+      port: {{ .Values.utilityMcp.servicePort }}
+      targetPort: http
+{{- end }}

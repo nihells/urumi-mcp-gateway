@@ -1,0 +1,66 @@
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.serviceName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.serviceName }}
+    spec:
+      containers:
+        - name: backend
+          image: {{ .Values.backend.image }}
+          imagePullPolicy: {{ .Values.backend.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.servicePort }}
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.jwtSecret.existingSecret }}
+                  key: {{ .Values.backend.jwtSecret.key }}
+            - name: OLLAMA_URL
+              value: {{ .Values.backend.ollamaUrl | quote }}
+            - name: OLLAMA_MODEL
+              value: {{ .Values.backend.ollamaModel | quote }}
+            - name: DATABASE_URL
+              value: {{ .Values.backend.databaseUrl | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsGroup: 10001
+            runAsNonRoot: true
+            runAsUser: 10001
+          {{- if .Values.backend.persistence.enabled }}
+          volumeMounts:
+            - name: backend-data
+              mountPath: /app/data
+          {{- end }}
+      {{- if .Values.backend.persistence.enabled }}
+      volumes:
+        - name: backend-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.backend.persistence.existingClaim }}
+      {{- end }}
+{{- end }}

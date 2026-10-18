@@ -1,0 +1,15 @@
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.backend.serviceName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.backend.serviceName }}
+  ports:
+    - name: http
+      port: {{ .Values.backend.servicePort }}
+      targetPort: http
+{{- end }}

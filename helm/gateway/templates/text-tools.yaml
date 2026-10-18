@@ -1,0 +1,39 @@
+{{- if .Values.textTools.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.textTools.serviceName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.textTools.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.textTools.serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.textTools.serviceName }}
+    spec:
+      containers:
+        - name: text-tools
+          image: {{ .Values.textTools.image }}
+          imagePullPolicy: {{ .Values.textTools.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.textTools.servicePort }}
+          env:
+            - name: PORT
+              value: {{ .Values.textTools.servicePort | quote }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.textTools.resources | nindent 12 }}
+{{- end }}

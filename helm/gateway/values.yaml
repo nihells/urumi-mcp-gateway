@@ -1,0 +1,93 @@
+frontend:
+  enabled: true
+  image: urumi-frontend:0.1.0
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  servicePort: 80
+  host: dashboard.urumi.local
+
+backend:
+  enabled: true
+  image: urumi-backend:0.1.0
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  serviceName: urumi-backend
+  servicePort: 8001
+  databaseUrl: sqlite:////app/data/urumi.db
+  ollamaUrl: http://host.docker.internal:11434
+  ollamaModel: llama3.2:3b
+  jwtSecret:
+    existingSecret: urumi-backend-secrets
+    key: jwt-secret
+  persistence:
+    enabled: true
+    existingClaim: urumi-backend-data
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi
+
+wooMcp:
+  enabled: true
+  image: urumi-woo-mcp:0.1.0
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  serviceName: woo-mcp-server
+  servicePort: 8000
+  wordpressUrl: http://urumi-wordpress.urumi.svc.cluster.local
+  credentials:
+    existingSecret: woo-api-credentials
+    consumerKey: consumer-key
+    consumerSecret: consumer-secret
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ingress:
+  enabled: true
+  className: nginx
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+textTools:
+  enabled: true
+  image: urumi-text-tools:0.1.2
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  serviceName: text-tools-mcp
+  servicePort: 8003
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+utilityMcp:
+  enabled: true
+  image: urumi-utility:0.1.2
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  serviceName: utility-mcp
+  servicePort: 8002
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi

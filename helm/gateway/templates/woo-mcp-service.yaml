@@ -1,0 +1,15 @@
+{{- if .Values.wooMcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.wooMcp.serviceName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.wooMcp.serviceName }}
+  ports:
+    - name: http
+      port: {{ .Values.wooMcp.servicePort }}
+      targetPort: http
+{{- end }}
