@@ -9,6 +9,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mariadb.storage }}
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -53,6 +54,7 @@ spec:
           volumeMounts:
             - name: database
               mountPath: /var/lib/mysql
+
           startupProbe:
             exec:
               command:
@@ -61,6 +63,7 @@ spec:
                 - mariadb-admin ping -h 127.0.0.1 -uroot -p"$MARIADB_ROOT_PASSWORD"
             failureThreshold: 30
             periodSeconds: 10
+
           readinessProbe:
             exec:
               command:
@@ -69,10 +72,23 @@ spec:
                 - mariadb-admin ping -h 127.0.0.1 -uroot -p"$MARIADB_ROOT_PASSWORD"
             periodSeconds: 10
             timeoutSeconds: 5
+
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - mariadb-admin ping -h 127.0.0.1 -uroot -p"$MARIADB_ROOT_PASSWORD"
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
       volumes:
         - name: database
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-mariadb-data
+
 ---
 apiVersion: v1
 kind: Service
